@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "427895963370",
+    "project_id": "khaoula-gosrani",
+    "storage_bucket": "khaoula-gosrani.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:427895963370:android:e0c21e858cc8a1d51ea193",
+        "android_client_info": {
+          "package_name": "com.example.myapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCjUditkIFXDfxgtB75XBJUpojzTvJitCw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
