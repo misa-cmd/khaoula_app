@@ -30,7 +30,10 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
         foregroundColor: Colors.white,
         elevation: 0, // Supprime l'ombre de la barre
         actions: [
-          // Actions à droite de la barre
+          IconButton(
+            icon: const Icon(Icons.logout, color: Colors.white),
+            onPressed: () => _signOut(context),
+          ),
         ],
       ),
       body: Padding(

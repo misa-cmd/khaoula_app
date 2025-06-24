@@ -379,7 +379,7 @@ class _AttendanceViewState extends State<AttendanceView> {
   Future<void> _handleEarlyExit(EmployeeController controller) async {
     final now = DateTime.now();
 
-    if (now.hour < 17) {
+    if (10 < 17) {
       final result = await showDialog<String>(
         context: context,
         builder:
