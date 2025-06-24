@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/controllers/auth_controller.dart';
 import 'package:myapp/services/firebase_service.dart';
 import 'package:myapp/models/user_model.dart';
 import 'package:myapp/models/attendance_model.dart';
@@ -20,6 +21,14 @@ class AdminDashboardView extends StatefulWidget {
 
 class _AdminDashboardViewState extends State<AdminDashboardView> {
   final FirebaseService _firebaseService = FirebaseService();
+  final AuthController _authController = AuthController();
+  Future<void> _signOut(BuildContext context) async {
+    await _authController.signOut();
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => AuthView()),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1140,6 +1149,7 @@ class _RealTimePresenceViewState extends State<RealTimePresenceView> {
       ],
     );
   }
+
   // Fonction pour déconnecter l'utilisateur
   // Fonction pour déconnecter l'utilisateur
 }
