@@ -7,154 +7,180 @@ import 'package:intl/intl.dart';
 
 import 'package:myapp/controllers/employee_controller.dart';
 
-
 /// Service principal pour gérer toutes les interactions avec Firebase
 /// Gère l'authentification, les utilisateurs, les présences et les congés
 class FirebaseService {
   // Instances Firebase pour l'authentification et la base de données
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  
-// ========== nv condition de conge ==========
-// Ajoutez ces méthodes à votre classe FirebaseService existante
 
-/// Calcule le nombre total de jours de congés approuvés pour un employé dans l'année en cours
-Future<int> getApprovedLeaveDaysForCurrentYear(String employeeId) async {
-  try {
-    DateTime now = DateTime.now();
-    DateTime startOfYear = DateTime(now.year, 1, 1);
-    DateTime endOfYear = DateTime(now.year, 12, 31, 23, 59, 59);
-    
-    QuerySnapshot snapshot = await _firestore
-        .collection('leaves')
-        .where('employeeId', isEqualTo: employeeId)
-        .where('status', isEqualTo: 'accepte')
-        .get();
+  // ========== nv condition de conge ==========
+  // Ajoutez ces méthodes à votre classe FirebaseService existante
 
-    int totalDays = 0;
-    for (var doc in snapshot.docs) {
-      LeaveModel leave = LeaveModel.fromMap(doc.data() as Map<String, dynamic>);
-      
-      // Vérifier si les dates de congé chevauchent avec l'année en cours
-      if (leave.endDate.isAfter(startOfYear.subtract(Duration(days: 1))) && 
-          leave.startDate.isBefore(endOfYear.add(Duration(days: 1)))) {
-        
-        // Calculer les jours qui tombent dans l'année en cours
-        DateTime effectiveStart = leave.startDate.isBefore(startOfYear) ? startOfYear : leave.startDate;
-        DateTime effectiveEnd = leave.endDate.isAfter(endOfYear) ? endOfYear : leave.endDate;
-        
-        int days = effectiveEnd.difference(effectiveStart).inDays + 1;
-        totalDays += days;
+  /// Calcule le nombre total de jours de congés approuvés pour un employé dans l'année en cours
+  Future<int> getApprovedLeaveDaysForCurrentYear(String employeeId) async {
+    try {
+      DateTime now = DateTime.now();
+      DateTime startOfYear = DateTime(now.year, 1, 1);
+      DateTime endOfYear = DateTime(now.year, 12, 31, 23, 59, 59);
+
+      QuerySnapshot snapshot =
+          await _firestore
+              .collection('leaves')
+              .where('employeeId', isEqualTo: employeeId)
+              .where('status', isEqualTo: 'accepte')
+              .get();
+
+      int totalDays = 0;
+      for (var doc in snapshot.docs) {
+        LeaveModel leave = LeaveModel.fromMap(
+          doc.data() as Map<String, dynamic>,
+        );
+
+        // Vérifier si les dates de congé chevauchent avec l'année en cours
+        if (leave.endDate.isAfter(startOfYear.subtract(Duration(days: 1))) &&
+            leave.startDate.isBefore(endOfYear.add(Duration(days: 1)))) {
+          // Calculer les jours qui tombent dans l'année en cours
+          DateTime effectiveStart =
+              leave.startDate.isBefore(startOfYear)
+                  ? startOfYear
+                  : leave.startDate;
+          DateTime effectiveEnd =
+              leave.endDate.isAfter(endOfYear) ? endOfYear : leave.endDate;
+
+          int days = effectiveEnd.difference(effectiveStart).inDays + 1;
+          totalDays += days;
+        }
       }
+
+      return totalDays;
+    } catch (e) {
+      print('Erreur calcul jours congés: $e');
+      return 0;
     }
-    
-    return totalDays;
-  } catch (e) {
-    print('Erreur calcul jours congés: $e');
-    return 0;
   }
-}
 
-/// Calcule le nombre de jours demandés (toutes demandes confondues) pour l'année en cours
-Future<int> getRequestedLeaveDaysForCurrentYear(String employeeId) async {
-  try {
-    DateTime now = DateTime.now();
-    DateTime startOfYear = DateTime(now.year, 1, 1);
-    DateTime endOfYear = DateTime(now.year, 12, 31, 23, 59, 59);
-    
-    QuerySnapshot snapshot = await _firestore
-        .collection('leaves')
-        .where('employeeId', isEqualTo: employeeId)
-        .get();
+  /// Calcule le nombre de jours demandés (toutes demandes confondues) pour l'année en cours
+  Future<int> getRequestedLeaveDaysForCurrentYear(String employeeId) async {
+    try {
+      DateTime now = DateTime.now();
+      DateTime startOfYear = DateTime(now.year, 1, 1);
+      DateTime endOfYear = DateTime(now.year, 12, 31, 23, 59, 59);
 
-    int totalDays = 0;
-    for (var doc in snapshot.docs) {
-      LeaveModel leave = LeaveModel.fromMap(doc.data() as Map<String, dynamic>);
-      
-      // Vérifier si les dates de congé chevauchent avec l'année en cours
-      if (leave.endDate.isAfter(startOfYear.subtract(Duration(days: 1))) && 
-          leave.startDate.isBefore(endOfYear.add(Duration(days: 1)))) {
-        
-        // Calculer les jours qui tombent dans l'année en cours
-        DateTime effectiveStart = leave.startDate.isBefore(startOfYear) ? startOfYear : leave.startDate;
-        DateTime effectiveEnd = leave.endDate.isAfter(endOfYear) ? endOfYear : leave.endDate;
-        
-        int days = effectiveEnd.difference(effectiveStart).inDays + 1;
-        totalDays += days;
+      QuerySnapshot snapshot =
+          await _firestore
+              .collection('leaves')
+              .where('employeeId', isEqualTo: employeeId)
+              .get();
+
+      int totalDays = 0;
+      for (var doc in snapshot.docs) {
+        LeaveModel leave = LeaveModel.fromMap(
+          doc.data() as Map<String, dynamic>,
+        );
+
+        // Vérifier si les dates de congé chevauchent avec l'année en cours
+        if (leave.endDate.isAfter(startOfYear.subtract(Duration(days: 1))) &&
+            leave.startDate.isBefore(endOfYear.add(Duration(days: 1)))) {
+          // Calculer les jours qui tombent dans l'année en cours
+          DateTime effectiveStart =
+              leave.startDate.isBefore(startOfYear)
+                  ? startOfYear
+                  : leave.startDate;
+          DateTime effectiveEnd =
+              leave.endDate.isAfter(endOfYear) ? endOfYear : leave.endDate;
+
+          int days = effectiveEnd.difference(effectiveStart).inDays + 1;
+          totalDays += days;
+        }
       }
+
+      return totalDays;
+    } catch (e) {
+      print('Erreur calcul jours demandés: $e');
+      return 0;
     }
-    
-    return totalDays;
-  } catch (e) {
-    print('Erreur calcul jours demandés: $e');
-    return 0;
   }
-}
 
-/// Calcule le nombre de jours en attente pour l'année en cours
-Future<int> getPendingLeaveDaysForCurrentYear(String employeeId) async {
-  try {
-    DateTime now = DateTime.now();
-    DateTime startOfYear = DateTime(now.year, 1, 1);
-    DateTime endOfYear = DateTime(now.year, 12, 31, 23, 59, 59);
-    
-    QuerySnapshot snapshot = await _firestore
-        .collection('leaves')
-        .where('employeeId', isEqualTo: employeeId)
-        .where('status', isEqualTo: 'en_cours')
-        .get();
+  /// Calcule le nombre de jours en attente pour l'année en cours
+  Future<int> getPendingLeaveDaysForCurrentYear(String employeeId) async {
+    try {
+      DateTime now = DateTime.now();
+      DateTime startOfYear = DateTime(now.year, 1, 1);
+      DateTime endOfYear = DateTime(now.year, 12, 31, 23, 59, 59);
 
-    int totalDays = 0;
-    for (var doc in snapshot.docs) {
-      LeaveModel leave = LeaveModel.fromMap(doc.data() as Map<String, dynamic>);
-      
-      // Vérifier si les dates de congé chevauchent avec l'année en cours
-      if (leave.endDate.isAfter(startOfYear.subtract(Duration(days: 1))) && 
-          leave.startDate.isBefore(endOfYear.add(Duration(days: 1)))) {
-        
-        // Calculer les jours qui tombent dans l'année en cours
-        DateTime effectiveStart = leave.startDate.isBefore(startOfYear) ? startOfYear : leave.startDate;
-        DateTime effectiveEnd = leave.endDate.isAfter(endOfYear) ? endOfYear : leave.endDate;
-        
-        int days = effectiveEnd.difference(effectiveStart).inDays + 1;
-        totalDays += days;
+      QuerySnapshot snapshot =
+          await _firestore
+              .collection('leaves')
+              .where('employeeId', isEqualTo: employeeId)
+              .where('status', isEqualTo: 'en_cours')
+              .get();
+
+      int totalDays = 0;
+      for (var doc in snapshot.docs) {
+        LeaveModel leave = LeaveModel.fromMap(
+          doc.data() as Map<String, dynamic>,
+        );
+
+        // Vérifier si les dates de congé chevauchent avec l'année en cours
+        if (leave.endDate.isAfter(startOfYear.subtract(Duration(days: 1))) &&
+            leave.startDate.isBefore(endOfYear.add(Duration(days: 1)))) {
+          // Calculer les jours qui tombent dans l'année en cours
+          DateTime effectiveStart =
+              leave.startDate.isBefore(startOfYear)
+                  ? startOfYear
+                  : leave.startDate;
+          DateTime effectiveEnd =
+              leave.endDate.isAfter(endOfYear) ? endOfYear : leave.endDate;
+
+          int days = effectiveEnd.difference(effectiveStart).inDays + 1;
+          totalDays += days;
+        }
       }
-    }
-    
-    return totalDays;
-  } catch (e) {
-    print('Erreur calcul jours en attente: $e');
-    return 0;
-  }
-}
 
-/// Vérifie si une nouvelle demande de congé dépasse la limite annuelle
-Future<bool> canRequestLeave(String employeeId, DateTime startDate, DateTime endDate) async {
-  try {
-    int currentApprovedDays = await getApprovedLeaveDaysForCurrentYear(employeeId);
-    int currentPendingDays = await getPendingLeaveDaysForCurrentYear(employeeId);
-    
-    // Calculer les jours de la nouvelle demande pour l'année en cours
-    DateTime now = DateTime.now();
-    DateTime startOfYear = DateTime(now.year, 1, 1);
-    DateTime endOfYear = DateTime(now.year, 12, 31, 23, 59, 59);
-    
-    int newRequestDays = 0;
-    if (endDate.isAfter(startOfYear.subtract(Duration(days: 1))) && 
-        startDate.isBefore(endOfYear.add(Duration(days: 1)))) {
-      DateTime effectiveStart = startDate.isBefore(startOfYear) ? startOfYear : startDate;
-      DateTime effectiveEnd = endDate.isAfter(endOfYear) ? endOfYear : endDate;
-      newRequestDays = effectiveEnd.difference(effectiveStart).inDays + 1;
+      return totalDays;
+    } catch (e) {
+      print('Erreur calcul jours en attente: $e');
+      return 0;
     }
-    
-    // Vérifier si le total ne dépasse pas 30 jours
-    return (currentApprovedDays + currentPendingDays + newRequestDays) <= 30;
-  } catch (e) {
-    print('Erreur vérification limite congés: $e');
-    return false;
   }
-}
 
+  /// Vérifie si une nouvelle demande de congé dépasse la limite annuelle
+  Future<bool> canRequestLeave(
+    String employeeId,
+    DateTime startDate,
+    DateTime endDate,
+  ) async {
+    try {
+      int currentApprovedDays = await getApprovedLeaveDaysForCurrentYear(
+        employeeId,
+      );
+      int currentPendingDays = await getPendingLeaveDaysForCurrentYear(
+        employeeId,
+      );
+
+      // Calculer les jours de la nouvelle demande pour l'année en cours
+      DateTime now = DateTime.now();
+      DateTime startOfYear = DateTime(now.year, 1, 1);
+      DateTime endOfYear = DateTime(now.year, 12, 31, 23, 59, 59);
+
+      int newRequestDays = 0;
+      if (endDate.isAfter(startOfYear.subtract(Duration(days: 1))) &&
+          startDate.isBefore(endOfYear.add(Duration(days: 1)))) {
+        DateTime effectiveStart =
+            startDate.isBefore(startOfYear) ? startOfYear : startDate;
+        DateTime effectiveEnd =
+            endDate.isAfter(endOfYear) ? endOfYear : endDate;
+        newRequestDays = effectiveEnd.difference(effectiveStart).inDays + 1;
+      }
+
+      // Vérifier si le total ne dépasse pas 30 jours
+      return (currentApprovedDays + currentPendingDays + newRequestDays) <= 30;
+    } catch (e) {
+      print('Erreur vérification limite congés: $e');
+      return false;
+    }
+  }
 
   // ========== GESTION DE L'AUTHENTIFICATION ==========
 
@@ -277,13 +303,12 @@ Future<bool> canRequestLeave(String employeeId, DateTime startDate, DateTime end
     }
   }
 
-  
   // ========== GESTION DES CONGÉS ==========
 
   /// Soumission d'une demande de congé
   /// Permet aux employés de demander des congés avec dates de début et fin
   /// Crée une demande en attente d'approbation admin
-  
+
   Future<void> submitLeaveRequest(
     DateTime startDate,
     DateTime endDate,
@@ -392,6 +417,7 @@ Future<bool> canRequestLeave(String employeeId, DateTime startDate, DateTime end
       print('Erreur mise à jour statut congé: $e');
     }
   }
+
   // Stream pour écouter les changements en temps réel
   Stream<Map<String, dynamic>> getAttendanceCounterStream() {
     return _firestore
@@ -399,31 +425,30 @@ Future<bool> canRequestLeave(String employeeId, DateTime startDate, DateTime end
         .doc('attendance_counter')
         .snapshots()
         .map((snapshot) {
-      if (snapshot.exists) {
-        return snapshot.data() as Map<String, dynamic>;
-      }
-      return {
-        'totalCheckIns': 0, 
-        'totalCheckOuts': 0, 
-        'dailyCount': <String, Map<String, int>>{}
-      };
-    });
+          if (snapshot.exists) {
+            return snapshot.data() as Map<String, dynamic>;
+          }
+          return {
+            'totalCheckIns': 0,
+            'totalCheckOuts': 0,
+            'dailyCount': <String, Map<String, int>>{},
+          };
+        });
   }
 
-
-//$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$presence
-    Future<void> checkIn() async {
+  //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$presence
+  Future<void> checkIn() async {
     final uid = _auth.currentUser!.uid;
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final dateStr = DateFormat('yyyy-MM-dd').format(today);
-    
+
     // Vérifier si l'employé est en retard
     final isLate = now.hour > 8 || (now.hour == 8 && now.minute > 0);
-    
+
     // Obtenir les informations de l'utilisateur
     final userDoc = await _firestore.collection('users').doc(uid).get();
-    final userName = userDoc.data()?['name'] ?? 'Employé inconnu';
+    final userName = userDoc.data()?['nom'] ?? 'Employé inconnu';
 
     // Créer ou mettre à jour l'enregistrement de présence
     await _firestore.collection('attendance').doc(uid + dateStr).set({
@@ -463,7 +488,7 @@ Future<bool> canRequestLeave(String employeeId, DateTime startDate, DateTime end
 
     final docRef = _firestore.collection('attendance').doc(uid + dateStr);
     final doc = await docRef.get();
-    
+
     if (doc.exists) {
       await docRef.update({
         'checkOutTime': now,
@@ -473,7 +498,9 @@ Future<bool> canRequestLeave(String employeeId, DateTime startDate, DateTime end
     }
 
     if (permanent) {
-      await _firestore.collection('users').doc(uid).update({'status': 'absent'});
+      await _firestore.collection('users').doc(uid).update({
+        'status': 'absent',
+      });
     }
   }
 
@@ -485,17 +512,19 @@ Future<bool> canRequestLeave(String employeeId, DateTime startDate, DateTime end
 
     final docRef = _firestore.collection('attendance').doc(uid + dateStr);
     final doc = await docRef.get();
-    
+
     if (doc.exists) {
       final data = doc.data() as Map<String, dynamic>;
-      List<Map<String, dynamic>> authPeriods = List<Map<String, dynamic>>.from(data['authorizationPeriods'] ?? []);
-      
+      List<Map<String, dynamic>> authPeriods = List<Map<String, dynamic>>.from(
+        data['authorizationPeriods'] ?? [],
+      );
+
       // Ajouter une nouvelle période d'autorisation
       authPeriods.add({
         'start': now,
         'end': null, // Sera mis à jour au retour
       });
-      
+
       await docRef.update({
         'hasAuthorization': true,
         'isOnAuthorization': true,
@@ -503,7 +532,9 @@ Future<bool> canRequestLeave(String employeeId, DateTime startDate, DateTime end
       });
     }
 
-    await _firestore.collection('users').doc(uid).update({'status': 'permission'});
+    await _firestore.collection('users').doc(uid).update({
+      'status': 'permission',
+    });
   }
 
   Future<void> returnFromPermission() async {
@@ -514,16 +545,18 @@ Future<bool> canRequestLeave(String employeeId, DateTime startDate, DateTime end
 
     final docRef = _firestore.collection('attendance').doc(uid + dateStr);
     final doc = await docRef.get();
-    
+
     if (doc.exists) {
       final data = doc.data() as Map<String, dynamic>;
-      List<Map<String, dynamic>> authPeriods = List<Map<String, dynamic>>.from(data['authorizationPeriods'] ?? []);
-      
+      List<Map<String, dynamic>> authPeriods = List<Map<String, dynamic>>.from(
+        data['authorizationPeriods'] ?? [],
+      );
+
       // Mettre à jour la dernière période d'autorisation
       if (authPeriods.isNotEmpty) {
         authPeriods.last['end'] = now;
       }
-      
+
       await docRef.update({
         'isOnAuthorization': false,
         'authorizationPeriods': authPeriods,
@@ -536,12 +569,15 @@ Future<bool> canRequestLeave(String employeeId, DateTime startDate, DateTime end
   Future<Map<String, dynamic>> getTodayStatus() async {
     final uid = _auth.currentUser!.uid;
     final today = DateTime.now();
-    final dateStr = DateFormat('yyyy-MM-dd').format(DateTime(today.year, today.month, today.day));
-    final doc = await _firestore.collection('attendance').doc(uid + dateStr).get();
+    final dateStr = DateFormat(
+      'yyyy-MM-dd',
+    ).format(DateTime(today.year, today.month, today.day));
+    final doc =
+        await _firestore.collection('attendance').doc(uid + dateStr).get();
 
     if (!doc.exists) {
       return {
-        'checkIn': false, 
+        'checkIn': false,
         'checkOut': false,
         'isOnAuthorization': false,
         'isPermanentlyOut': false,
@@ -564,7 +600,7 @@ Future<bool> canRequestLeave(String employeeId, DateTime startDate, DateTime end
     final uid = _auth.currentUser!.uid;
     final now = DateTime.now();
     final monday = now.subtract(Duration(days: now.weekday - 1));
-    
+
     double totalHours = 0;
     int daysPresent = 0;
     int lateCount = 0;
@@ -573,15 +609,16 @@ Future<bool> canRequestLeave(String employeeId, DateTime startDate, DateTime end
     for (int i = 0; i < 5; i++) {
       final day = monday.add(Duration(days: i));
       final dateStr = DateFormat('yyyy-MM-dd').format(day);
-      
-      final doc = await _firestore.collection('attendance').doc(uid + dateStr).get();
-      
+
+      final doc =
+          await _firestore.collection('attendance').doc(uid + dateStr).get();
+
       if (doc.exists) {
         final data = doc.data()!;
         if (data['checkInTime'] != null) {
           daysPresent++;
           totalHours += _calculateHours(data);
-          
+
           if (data['isLate'] == true) {
             lateCount++;
           }
@@ -598,14 +635,15 @@ Future<bool> canRequestLeave(String employeeId, DateTime startDate, DateTime end
 
   double _calculateHours(Map<String, dynamic> data) {
     if (data['checkInTime'] == null) return 0;
-    
+
     final checkIn = (data['checkInTime'] as Timestamp).toDate();
-    final checkOut = data['checkOutTime'] != null 
-        ? (data['checkOutTime'] as Timestamp).toDate()
-        : DateTime.now();
-    
+    final checkOut =
+        data['checkOutTime'] != null
+            ? (data['checkOutTime'] as Timestamp).toDate()
+            : DateTime.now();
+
     double totalMinutes = checkOut.difference(checkIn).inMinutes.toDouble();
-    
+
     // Soustraire les périodes d'autorisation
     final authPeriods = data['authorizationPeriods'] as List<dynamic>? ?? [];
     for (var period in authPeriods) {
@@ -615,7 +653,23 @@ Future<bool> canRequestLeave(String employeeId, DateTime startDate, DateTime end
         totalMinutes -= end.difference(start).inMinutes;
       }
     }
-    
+
     return totalMinutes / 60.0;
+  }
+
+  /// Vérifie si une adresse email existe déjà dans Firestore
+  Future<bool> emailExists(String email) async {
+    try {
+      final snapshot =
+          await _firestore
+              .collection('users')
+              .where('email', isEqualTo: email)
+              .limit(1)
+              .get();
+      return snapshot.docs.isNotEmpty;
+    } catch (e) {
+      print('Erreur vérification email: $e');
+      return false;
+    }
   }
 }

@@ -4,11 +4,9 @@ import 'package:myapp/controllers/employee_controller.dart';
 import 'package:myapp/models/leave_model.dart';
 
 class LeaveRequestView extends StatefulWidget {
-  
   const LeaveRequestView({super.key});
 
   @override
-  
   _LeaveRequestViewState createState() => _LeaveRequestViewState();
 }
 
@@ -18,7 +16,7 @@ class _LeaveRequestViewState extends State<LeaveRequestView> {
   DateTime? _startDate;
   DateTime? _endDate;
   bool _isSubmitting = false;
-  
+
   // Variables pour les statistiques
   int _approvedDays = 0;
   int _pendingDays = 0;
@@ -46,9 +44,12 @@ class _LeaveRequestViewState extends State<LeaveRequestView> {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
-        final approvedDays = await _employeeController.firebaseService.getApprovedLeaveDaysForCurrentYear(user.uid);
-        final pendingDays = await _employeeController.firebaseService.getPendingLeaveDaysForCurrentYear(user.uid);
-        final totalDays = await _employeeController.firebaseService.getRequestedLeaveDaysForCurrentYear(user.uid);
+        final approvedDays = await _employeeController.firebaseService
+            .getApprovedLeaveDaysForCurrentYear(user.uid);
+        final pendingDays = await _employeeController.firebaseService
+            .getPendingLeaveDaysForCurrentYear(user.uid);
+        final totalDays = await _employeeController.firebaseService
+            .getRequestedLeaveDaysForCurrentYear(user.uid);
 
         setState(() {
           _approvedDays = approvedDays;
@@ -59,10 +60,10 @@ class _LeaveRequestViewState extends State<LeaveRequestView> {
       }
     } catch (e) {
       print('Erreur chargement statistiques: $e');
-      if(mounted){
+      if (mounted) {
         setState(() {
-        _isLoadingStats = false;
-      });
+          _isLoadingStats = false;
+        });
       }
     }
   }
@@ -72,13 +73,7 @@ class _LeaveRequestViewState extends State<LeaveRequestView> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey[700],
-          ),
-        ),
+        Text(label, style: TextStyle(fontSize: 14, color: Colors.grey[700])),
         Container(
           padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
@@ -160,14 +155,14 @@ class _LeaveRequestViewState extends State<LeaveRequestView> {
                                   Icons.calendar_today,
                                   color: Color(0xFF3F5044),
                                 ),
-                                SizedBox(width: 8),
+                                SizedBox(width: 4),
                                 Text(
                                   _startDate != null
                                       ? _employeeController.formatDate(
                                         _startDate!,
                                       )
                                       : 'Date de début',
-                                  style: TextStyle(fontSize: 16),
+                                  style: TextStyle(fontSize: 10),
                                 ),
                               ],
                             ),
@@ -193,14 +188,14 @@ class _LeaveRequestViewState extends State<LeaveRequestView> {
                                   Icons.calendar_today,
                                   color: Color(0xFF3F5044),
                                 ),
-                                SizedBox(width: 8),
+                                SizedBox(width: 4),
                                 Text(
                                   _endDate != null
                                       ? _employeeController.formatDate(
                                         _endDate!,
                                       )
                                       : 'Date de fin',
-                                  style: TextStyle(fontSize: 16),
+                                  style: TextStyle(fontSize: 10),
                                 ),
                               ],
                             ),
@@ -215,13 +210,17 @@ class _LeaveRequestViewState extends State<LeaveRequestView> {
                     maxLines: 3,
                     decoration: InputDecoration(
                       labelText: 'Raison de l\'absence',
-                      hintText: 'Décrivez brièvement la raison de votre demande de congé...',
+                      hintText:
+                          'Décrivez brièvement la raison de votre demande de congé...',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: Color(0xFF3F5044), width: 2),
+                        borderSide: BorderSide(
+                          color: Color(0xFF3F5044),
+                          width: 2,
+                        ),
                       ),
                       prefixIcon: Icon(
                         Icons.edit_note,
@@ -274,11 +273,23 @@ class _LeaveRequestViewState extends State<LeaveRequestView> {
                         else
                           Column(
                             children: [
-                              _buildStatRow('Jours approuvés', _approvedDays, Colors.green),
+                              _buildStatRow(
+                                'Jours approuvés',
+                                _approvedDays,
+                                Colors.green,
+                              ),
                               SizedBox(height: 8),
-                              _buildStatRow('Jours en attente', _pendingDays, Colors.orange),
+                              _buildStatRow(
+                                'Jours en attente',
+                                _pendingDays,
+                                Colors.orange,
+                              ),
                               SizedBox(height: 8),
-                              _buildStatRow('Total demandé', _totalRequestedDays, Color(0xFF3F5044)),
+                              _buildStatRow(
+                                'Total demandé',
+                                _totalRequestedDays,
+                                Color(0xFF3F5044),
+                              ),
                               SizedBox(height: 12),
                               Container(
                                 width: double.infinity,
@@ -289,13 +300,17 @@ class _LeaveRequestViewState extends State<LeaveRequestView> {
                                 ),
                                 child: FractionallySizedBox(
                                   alignment: Alignment.centerLeft,
-                                  widthFactor: (_totalRequestedDays / 30).clamp(0.0, 1.0),
+                                  widthFactor: (_totalRequestedDays / 30).clamp(
+                                    0.0,
+                                    1.0,
+                                  ),
                                   child: Container(
                                     decoration: BoxDecoration(
-                                      color: _totalRequestedDays > 30 
-                                          ? Colors.red 
-                                          : _totalRequestedDays > 25 
-                                              ? Colors.orange 
+                                      color:
+                                          _totalRequestedDays > 30
+                                              ? Colors.red
+                                              : _totalRequestedDays > 25
+                                              ? Colors.orange
                                               : Colors.green,
                                       borderRadius: BorderRadius.circular(4),
                                     ),
@@ -307,8 +322,14 @@ class _LeaveRequestViewState extends State<LeaveRequestView> {
                                 'Limite: ${_totalRequestedDays}/30 jours',
                                 style: TextStyle(
                                   fontSize: 12,
-                                  color: _totalRequestedDays > 30 ? Colors.red : Colors.grey[600],
-                                  fontWeight: _totalRequestedDays > 30 ? FontWeight.bold : FontWeight.normal,
+                                  color:
+                                      _totalRequestedDays > 30
+                                          ? Colors.red
+                                          : Colors.grey[600],
+                                  fontWeight:
+                                      _totalRequestedDays > 30
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
                                 ),
                               ),
                             ],
@@ -326,29 +347,36 @@ class _LeaveRequestViewState extends State<LeaveRequestView> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: _isSubmitting
-                        ? Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                  strokeWidth: 2,
+                    child:
+                        _isSubmitting
+                            ? Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2,
+                                  ),
                                 ),
+                                SizedBox(width: 12),
+                                Text(
+                                  'Soumission...',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            )
+                            : Text(
+                              'Soumettre la demande',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.white,
                               ),
-                              SizedBox(width: 12),
-                              Text(
-                                'Soumission...',
-                                style: TextStyle(fontSize: 16, color: Colors.white),
-                              ),
-                            ],
-                          )
-                        : Text(
-                            'Soumettre la demande',
-                            style: TextStyle(fontSize: 16, color: Colors.white),
-                          ),
+                            ),
                   ),
                 ],
               ),
@@ -412,14 +440,13 @@ class _LeaveRequestViewState extends State<LeaveRequestView> {
       // Vérifier la limite de 30 jours avant de soumettre
       final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
-        bool canRequest = await _employeeController.firebaseService.canRequestLeave(
-          user.uid, 
-          _startDate!, 
-          _endDate!
-        );
-        
+        bool canRequest = await _employeeController.firebaseService
+            .canRequestLeave(user.uid, _startDate!, _endDate!);
+
         if (!canRequest) {
-          _showError('Cette demande dépasserait la limite de 30 jours par année');
+          _showError(
+            'Cette demande dépasserait la limite de 30 jours par année',
+          );
           setState(() {
             _isSubmitting = false;
           });
@@ -439,10 +466,10 @@ class _LeaveRequestViewState extends State<LeaveRequestView> {
           _endDate = null;
           _reasonController.clear();
         });
-        
+
         // Recharger les statistiques après soumission réussie
         _loadLeaveStatistics();
-        
+
         _showSuccess('Demande de congé soumise avec succès');
       } else {
         _showError('Erreur lors de la soumission de la demande');

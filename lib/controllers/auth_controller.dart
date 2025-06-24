@@ -1,67 +1,104 @@
-import 'package:flutter/material.dart'; // Import des outils Flutter, y compris pour ChangeNotifier.
-import 'package:myapp/models/user_model.dart'; // Import du modèle utilisateur.
-import 'package:myapp/services/firebase_service.dart'; // Import du service Firebase contenant les méthodes d'authentification.
+import 'package:flutter/material.dart';
+import 'package:myapp/models/user_model.dart';
+import 'package:myapp/services/firebase_service.dart';
 
-// Contrôleur pour gérer l'authentification des utilisateurs (inscription, connexion, déconnexion).
 class AuthController extends ChangeNotifier {
-  final FirebaseService _firebaseService = FirebaseService(); // Instance du service Firebase pour accéder aux méthodes d'authentification.
-  UserModel? _currentUser; // Utilisateur actuellement connecté (null si aucun).
-  bool _isLoading = false; // Indique si une opération est en cours (utile pour afficher un loader).
+  final FirebaseService _firebaseService = FirebaseService();
+  UserModel? _currentUser;
+  bool _isLoading = false;
+  String? _errorMessage; // Store error message for UI feedback
 
-  // Getter pour accéder à l'utilisateur actuel depuis l'extérieur.
+  // Getters
   UserModel? get currentUser => _currentUser;
-
-  // Getter pour savoir si une opération (connexion/inscription) est en cours.
   bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
 
-  // Méthode pour inscrire un nouvel utilisateur avec son nom, email et mot de passe.
+  // Clear error message
+  void clearError() {
+    _errorMessage = null;
+    notifyListeners();
+  }
+
+  // Sign-up method
   Future<bool> signUp(String nom, String email, String password) async {
-    _isLoading = true; // Active le chargement.
-    notifyListeners(); // Notifie les widgets écoutant ce contrôleur.
+    _isLoading = true;
+    _errorMessage = null; // Reset error message
+    notifyListeners();
 
     try {
-      // Appelle le service Firebase pour s'inscrire et récupère l'utilisateur si succès.
+      // Check if email already exists
+      bool emailExists = await _firebaseService.emailExists(email);
+      if (emailExists) {
+        _isLoading = false;
+        _errorMessage = 'Cette adresse email est déjà utilisée';
+        notifyListeners();
+        return false;
+      }
+
+      // Proceed with sign-up
       _currentUser = await _firebaseService.signUp(nom, email, password);
 
-      _isLoading = false; // Désactive le chargement.
-      notifyListeners(); // Notifie les widgets du changement.
-
-      // Retourne true si l'inscription a réussi (utilisateur non nul), sinon false.
+      _isLoading = false;
+      notifyListeners();
       return _currentUser != null;
     } catch (e) {
-      // En cas d'erreur (ex. : compte déjà existant), désactive le chargement et retourne false.
       _isLoading = false;
+      _errorMessage = _parseSignUpError(e); // Parse specific error
       notifyListeners();
       return false;
     }
   }
 
-  // Méthode pour connecter un utilisateur avec email et mot de passe.
+  // Sign-in method
   Future<bool> signIn(String email, String password) async {
-    _isLoading = true; // Active l’indicateur de chargement.
-    notifyListeners(); // Met à jour l’interface (ex. : affichage d’un spinner).
+    _isLoading = true;
+    _errorMessage = null; // Reset error message
+    notifyListeners();
 
     try {
-      // Appelle le service Firebase pour se connecter et stocke l'utilisateur si succès.
       _currentUser = await _firebaseService.signIn(email, password);
 
-      _isLoading = false; // Désactive le chargement.
-      notifyListeners(); // Rafraîchit l'interface.
-
-      // Retourne true si connexion réussie (utilisateur récupéré), sinon false.
+      _isLoading = false;
+      notifyListeners();
       return _currentUser != null;
     } catch (e) {
-      // En cas d'erreur (email/mot de passe invalide, etc.).
       _isLoading = false;
+      _errorMessage = _parseSignInError(e); // Parse specific error
       notifyListeners();
       return false;
     }
   }
 
-  // Méthode pour déconnecter l'utilisateur actuellement connecté.
+  // Sign-out method
   Future<void> signOut() async {
-    await _firebaseService.signOut(); // Déconnecte l'utilisateur via Firebase.
-    _currentUser = null; // Supprime l’utilisateur courant du contrôleur.
-    notifyListeners(); // Met à jour les interfaces pour refléter la déconnexion.
+    await _firebaseService.signOut();
+    _currentUser = null;
+    _errorMessage = null;
+    notifyListeners();
+  }
+
+  // Parse sign-up errors
+  String _parseSignUpError(dynamic error) {
+    if (error.toString().contains('email-already-in-use')) {
+      return 'Cette adresse email est déjà utilisée';
+    } else if (error.toString().contains('invalid-email')) {
+      return 'L\'adresse email est invalide';
+    } else if (error.toString().contains('weak-password')) {
+      return 'Le mot de passe est trop faible';
+    } else {
+      return 'Une erreur est survenue lors de l\'inscription';
+    }
+  }
+
+  // Parse sign-in errors
+  String _parseSignInError(dynamic error) {
+    if (error.toString().contains('user-not-found') ||
+        error.toString().contains('wrong-password')) {
+      return 'Email ou mot de passe incorrect';
+    } else if (error.toString().contains('invalid-email')) {
+      return 'L\'adresse email est invalide';
+    } else {
+      return 'Une erreur est survenue lors de la connexion';
+    }
   }
 }

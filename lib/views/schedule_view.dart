@@ -83,7 +83,7 @@ class ScheduleView extends StatelessWidget {
                         Text(
                           'Consultation en temps réel',
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: 12,
                             color: Colors.grey[600],
                           ),
                         ),

@@ -5,7 +5,6 @@ import 'package:myapp/views/leave_request_view.dart';
 import 'package:myapp/views/schedule_view.dart';
 import 'package:myapp/views/auth_view.dart';
 
-
 class EmployeeDashboardView extends StatelessWidget {
   final AuthController _authController = AuthController();
 
@@ -16,69 +15,76 @@ class EmployeeDashboardView extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Tableau de bord Employé',
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: Color(0xFF3F5044),
+        backgroundColor: const Color(0xFF3F5044),
         elevation: 0,
         actions: [
           IconButton(
-            icon: Icon(Icons.logout, color: Colors.white),
+            icon: const Icon(Icons.logout, color: Colors.white),
             onPressed: () => _signOut(context),
           ),
         ],
       ),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: GridView.count(
-          crossAxisCount: 2,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-          children: [
-            _buildMenuCard(
-              context,
-              'Pointage',
-              Icons.access_time,
-              Colors.blue,
-              () => Navigator.push(
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: GridView.count(
+            crossAxisCount: 2,
+            crossAxisSpacing: 16,
+            mainAxisSpacing: 16,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            children: [
+              _buildMenuCard(
                 context,
-                MaterialPageRoute(builder: (context) => AttendanceView()),
+                'Pointage',
+                Icons.access_time,
+                Colors.blue,
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => AttendanceView()),
+                ),
               ),
-            ),
-            _buildMenuCard(
-              context,
-              'Demande Congé',
-              Icons.event_busy,
-              Colors.orange,
-              () => Navigator.push(
+              _buildMenuCard(
                 context,
-                MaterialPageRoute(builder: (context) => LeaveRequestView()),
+                'Demande Congé',
+                Icons.event_busy,
+                Colors.orange,
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => LeaveRequestView()),
+                ),
               ),
-            ),
-            _buildMenuCard(
-              context,
-              'Plannings',
-              Icons.schedule,
-              Colors.green,
-              () => Navigator.push(
+              _buildMenuCard(
                 context,
-                MaterialPageRoute(builder: (context) => ScheduleView()),
+                'Plannings',
+                Icons.schedule,
+                Colors.green,
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ScheduleView()),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildMenuCard(BuildContext context, String title, IconData icon,
-      Color color, VoidCallback onTap) {
+  Widget _buildMenuCard(
+    BuildContext context,
+    String title,
+    IconData icon,
+    Color color,
+    VoidCallback onTap,
+  ) {
     return Card(
       elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
@@ -88,24 +94,17 @@ class EmployeeDashboardView extends StatelessWidget {
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [
-                color.withOpacity(0.8),
-                color,
-              ],
+              colors: [color.withOpacity(0.8), color],
             ),
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                icon,
-                size: 60,
-                color: Colors.white,
-              ),
-              SizedBox(height: 16),
+              Icon(icon, size: 60, color: Colors.white),
+              const SizedBox(height: 16),
               Text(
                 title,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,

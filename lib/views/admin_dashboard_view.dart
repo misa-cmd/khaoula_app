@@ -11,7 +11,6 @@ import 'package:myapp/controllers/employee_controller.dart';
 import 'package:intl/intl.dart';
 import 'package:myapp/views/auth_view.dart'; // Vue d'authentification (connexion)
 
-
 class AdminDashboardView extends StatefulWidget {
   const AdminDashboardView({super.key});
 
@@ -22,9 +21,6 @@ class AdminDashboardView extends StatefulWidget {
 class _AdminDashboardViewState extends State<AdminDashboardView> {
   final FirebaseService _firebaseService = FirebaseService();
 
-
-  
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,7 +29,8 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
         backgroundColor: Color(0xFF3F5044),
         foregroundColor: Colors.white,
         elevation: 0, // Supprime l'ombre de la barre
-        actions: [ // Actions à droite de la barre
+        actions: [
+          // Actions à droite de la barre
         ],
       ),
       body: Padding(
@@ -354,7 +351,6 @@ class _EmployeeListViewState extends State<EmployeeListView> {
   }
 }
 
-
 // Interface pour consulter les demandes de congés avec intégration Firebase Service
 class LeaveRequestsView extends StatefulWidget {
   final FirebaseService firebaseService;
@@ -378,7 +374,7 @@ class _LeaveRequestsViewState extends State<LeaveRequestsView> {
     'en_cours': 0,
   };
 
- @override
+  @override
   void initState() {
     super.initState();
     _loadLeaves();
@@ -388,7 +384,7 @@ class _LeaveRequestsViewState extends State<LeaveRequestsView> {
     try {
       List<LeaveModel> loadedLeaves =
           await widget.firebaseService.getAllLeaves();
-      
+
       setState(() {
         leaves = loadedLeaves;
         isLoading = false;
@@ -407,7 +403,7 @@ class _LeaveRequestsViewState extends State<LeaveRequestsView> {
   void _calculateStatistics() {
     employeeStats.clear();
     globalStats = {'total': 0, 'accepte': 0, 'refuse': 0, 'en_cours': 0};
-    
+
     for (LeaveModel leave in leaves) {
       // Statistiques globales
       globalStats['total'] = globalStats['total']! + 1;
@@ -422,7 +418,7 @@ class _LeaveRequestsViewState extends State<LeaveRequestsView> {
           globalStats['en_cours'] = globalStats['en_cours']! + 1;
           break;
       }
-      
+
       // Statistiques par employé
       String employeeKey = leave.employeeId;
       if (!employeeStats.containsKey(employeeKey)) {
@@ -434,17 +430,21 @@ class _LeaveRequestsViewState extends State<LeaveRequestsView> {
           'en_cours': 0,
         };
       }
-      
-      employeeStats[employeeKey]!['total'] = employeeStats[employeeKey]!['total']! + 1;
+
+      employeeStats[employeeKey]!['total'] =
+          employeeStats[employeeKey]!['total']! + 1;
       switch (leave.status) {
         case LeaveStatus.accepte:
-          employeeStats[employeeKey]!['accepte'] = employeeStats[employeeKey]!['accepte']! + 1;
+          employeeStats[employeeKey]!['accepte'] =
+              employeeStats[employeeKey]!['accepte']! + 1;
           break;
         case LeaveStatus.refuse:
-          employeeStats[employeeKey]!['refuse'] = employeeStats[employeeKey]!['refuse']! + 1;
+          employeeStats[employeeKey]!['refuse'] =
+              employeeStats[employeeKey]!['refuse']! + 1;
           break;
         case LeaveStatus.en_cours:
-          employeeStats[employeeKey]!['en_cours'] = employeeStats[employeeKey]!['en_cours']! + 1;
+          employeeStats[employeeKey]!['en_cours'] =
+              employeeStats[employeeKey]!['en_cours']! + 1;
           break;
       }
     }
@@ -465,88 +465,113 @@ class _LeaveRequestsViewState extends State<LeaveRequestsView> {
           IconButton(icon: Icon(Icons.refresh), onPressed: _loadLeaves),
         ],
       ),
-      body: isLoading
-          ? Center(child: CircularProgressIndicator())
-          : Column(
-              children: [
-                // Carte des statistiques globales
-                _buildGlobalStatsCard(),
-                // Liste des demandes
-                Expanded(
-                  child: leaves.isEmpty
-                      ? Center(
-                          child: Text(
-                            'Aucune demande de congé trouvée',
-                            style: TextStyle(fontSize: 18, color: Colors.grey[600]),
-                          ),
-                        )
-                      : ListView.builder(
-                          padding: EdgeInsets.all(16),
-                          itemCount: leaves.length,
-                          itemBuilder: (context, index) {
-                            LeaveModel leave = leaves[index];
-                            return Card(
-                              margin: EdgeInsets.only(bottom: 12),
-                              child: ExpansionTile(
-                                leading: CircleAvatar(
-                                  backgroundColor: _getStatusColor(leave.status),
-                                  child: Icon(Icons.event, color: Colors.white),
+      body:
+          isLoading
+              ? Center(child: CircularProgressIndicator())
+              : Column(
+                children: [
+                  // Carte des statistiques globales
+                  _buildGlobalStatsCard(),
+                  // Liste des demandes
+                  Expanded(
+                    child:
+                        leaves.isEmpty
+                            ? Center(
+                              child: Text(
+                                'Aucune demande de congé trouvée',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.grey[600],
                                 ),
-                                title: Text(
-                                  leave.employeeName,
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                                subtitle: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text('UID: ${leave.employeeId}'),
-                                    Text('Du: ${_formatDate(leave.startDate)}'),
-                                    Text('Au: ${_formatDate(leave.endDate)}'),
-                                    Text(
-                                      'Statut: ${_getStatusText(leave.status)}',
+                              ),
+                            )
+                            : ListView.builder(
+                              padding: EdgeInsets.all(16),
+                              itemCount: leaves.length,
+                              itemBuilder: (context, index) {
+                                LeaveModel leave = leaves[index];
+                                return Card(
+                                  margin: EdgeInsets.only(bottom: 12),
+                                  child: ExpansionTile(
+                                    leading: CircleAvatar(
+                                      backgroundColor: _getStatusColor(
+                                        leave.status,
+                                      ),
+                                      child: Icon(
+                                        Icons.event,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    title: Text(
+                                      leave.employeeName,
                                       style: TextStyle(
-                                        color: _getStatusColor(leave.status),
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
-                                  ],
-                                ),
-                                trailing: leave.status == LeaveStatus.en_cours
-                                    ? Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          IconButton(
-                                            icon: Icon(
-                                              Icons.check,
-                                              color: Colors.green,
+                                    subtitle: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text('UID: ${leave.employeeId}'),
+                                        Text(
+                                          'Du: ${_formatDate(leave.startDate)}',
+                                        ),
+                                        Text(
+                                          'Au: ${_formatDate(leave.endDate)}',
+                                        ),
+                                        Text(
+                                          'Statut: ${_getStatusText(leave.status)}',
+                                          style: TextStyle(
+                                            color: _getStatusColor(
+                                              leave.status,
                                             ),
-                                            onPressed: () => _updateLeaveStatus(
-                                              leave.id,
-                                              LeaveStatus.accepte,
-                                              leave.employeeId,
-                                            ),
+                                            fontWeight: FontWeight.bold,
                                           ),
-                                          IconButton(
-                                            icon: Icon(Icons.close, color: Colors.red),
-                                            onPressed: () => _updateLeaveStatus(
-                                              leave.id,
-                                              LeaveStatus.refuse,
-                                              leave.employeeId,
-                                            ),
-                                          ),
-                                        ],
-                                      )
-                                    : null,
-                                children: [
-                                  _buildEmployeeStatsCard(leave.employeeId),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
-                ),
-              ],
-            ),
+                                        ),
+                                      ],
+                                    ),
+                                    trailing:
+                                        leave.status == LeaveStatus.en_cours
+                                            ? Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                IconButton(
+                                                  icon: Icon(
+                                                    Icons.check,
+                                                    color: Colors.green,
+                                                  ),
+                                                  onPressed:
+                                                      () => _updateLeaveStatus(
+                                                        leave.id,
+                                                        LeaveStatus.accepte,
+                                                        leave.employeeId,
+                                                      ),
+                                                ),
+                                                IconButton(
+                                                  icon: Icon(
+                                                    Icons.close,
+                                                    color: Colors.red,
+                                                  ),
+                                                  onPressed:
+                                                      () => _updateLeaveStatus(
+                                                        leave.id,
+                                                        LeaveStatus.refuse,
+                                                        leave.employeeId,
+                                                      ),
+                                                ),
+                                              ],
+                                            )
+                                            : null,
+                                    children: [
+                                      _buildEmployeeStatsCard(leave.employeeId),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                  ),
+                ],
+              ),
     );
   }
 
@@ -574,16 +599,32 @@ class _LeaveRequestsViewState extends State<LeaveRequestsView> {
           Row(
             children: [
               Expanded(
-                child: _buildStatItem('Total', globalStats['total']!, Colors.blue),
+                child: _buildStatItem(
+                  'Total',
+                  globalStats['total']!,
+                  Colors.blue,
+                ),
               ),
               Expanded(
-                child: _buildStatItem('Approuvées', globalStats['accepte']!, Colors.green),
+                child: _buildStatItem(
+                  'Approuvées',
+                  globalStats['accepte']!,
+                  Colors.green,
+                ),
               ),
               Expanded(
-                child: _buildStatItem('Refusées', globalStats['refuse']!, Colors.red),
+                child: _buildStatItem(
+                  'Refusées',
+                  globalStats['refuse']!,
+                  Colors.red,
+                ),
               ),
               Expanded(
-                child: _buildStatItem('En attente', globalStats['en_cours']!, Colors.orange),
+                child: _buildStatItem(
+                  'En attente',
+                  globalStats['en_cours']!,
+                  Colors.orange,
+                ),
               ),
             ],
           ),
@@ -594,7 +635,7 @@ class _LeaveRequestsViewState extends State<LeaveRequestsView> {
 
   Widget _buildEmployeeStatsCard(String employeeId) {
     if (!employeeStats.containsKey(employeeId)) return SizedBox.shrink();
-    
+
     Map<String, dynamic> stats = employeeStats[employeeId]!;
     return Container(
       margin: EdgeInsets.all(12),
@@ -626,7 +667,11 @@ class _LeaveRequestsViewState extends State<LeaveRequestsView> {
                 child: _buildMiniStatItem('✗', stats['refuse'], Colors.red),
               ),
               Expanded(
-                child: _buildMiniStatItem('⏳', stats['en_cours'], Colors.orange),
+                child: _buildMiniStatItem(
+                  '⏳',
+                  stats['en_cours'],
+                  Colors.orange,
+                ),
               ),
             ],
           ),
@@ -646,13 +691,7 @@ class _LeaveRequestsViewState extends State<LeaveRequestsView> {
             color: color,
           ),
         ),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey[600],
-          ),
-        ),
+        Text(label, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
       ],
     );
   }
@@ -668,13 +707,7 @@ class _LeaveRequestsViewState extends State<LeaveRequestsView> {
             color: color,
           ),
         ),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 10,
-            color: Colors.grey[600],
-          ),
-        ),
+        Text(label, style: TextStyle(fontSize: 10, color: Colors.grey[600])),
       ],
     );
   }
@@ -761,20 +794,26 @@ class _LeaveRequestsViewState extends State<LeaveRequestsView> {
     }
   }
 
-  void _updateLeaveStatus(String leaveId, LeaveStatus status, String employeeId) async {
+  void _updateLeaveStatus(
+    String leaveId,
+    LeaveStatus status,
+    String employeeId,
+  ) async {
     try {
       await widget.firebaseService.updateLeaveStatus(leaveId, status);
       await _loadLeaves(); // Recharge les données pour mettre à jour les statistiques
-      
-      String statusText = status == LeaveStatus.accepte ? 'approuvée' : 'refusée';
-      
+
+      String statusText =
+          status == LeaveStatus.accepte ? 'approuvée' : 'refusée';
+
       // Affichage des nouvelles statistiques
       Map<String, dynamic>? empStats = employeeStats[employeeId];
       String statsMessage = '';
       if (empStats != null) {
-        statsMessage = '\n${empStats['name']}: ${empStats['accepte']} approuvées, ${empStats['refuse']} refusées sur ${empStats['total']} demandes';
+        statsMessage =
+            '\n${empStats['name']}: ${empStats['accepte']} approuvées, ${empStats['refuse']} refusées sur ${empStats['total']} demandes';
       }
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Demande $statusText avec succès$statsMessage'),
@@ -800,7 +839,6 @@ class RealTimePresenceView extends StatefulWidget {
 }
 
 class _RealTimePresenceViewState extends State<RealTimePresenceView> {
-
   Color _getStatusColor(String status) {
     switch (status) {
       case 'present':
@@ -831,15 +869,15 @@ class _RealTimePresenceViewState extends State<RealTimePresenceView> {
   String _getFullName(Map<String, dynamic> userData) {
     final firstName = userData['firstName'] ?? userData['prenom'] ?? '';
     final lastName = userData['lastName'] ?? userData['nom'] ?? '';
-    
+
     if (firstName.isNotEmpty && lastName.isNotEmpty) {
       return '$firstName $lastName';
     } else if (firstName.isNotEmpty) {
       return firstName;
     } else if (lastName.isNotEmpty) {
       return lastName;
-    } else if (userData['name'] != null && userData['name'].isNotEmpty) {
-      return userData['name'];
+    } else if (userData['nom'] != null && userData['nom'].isNotEmpty) {
+      return userData['nom'];
     } else {
       return 'Nom non défini';
     }
@@ -851,7 +889,7 @@ class _RealTimePresenceViewState extends State<RealTimePresenceView> {
       final data = doc.data() as Map<String, dynamic>;
       final role = data['role'] ?? '';
       final isAdmin = data['isAdmin'] ?? false;
-      
+
       // Exclure les utilisateurs qui sont admin
       return role.toLowerCase() != 'admin' && !isAdmin;
     }).toList();
@@ -882,48 +920,61 @@ class _RealTimePresenceViewState extends State<RealTimePresenceView> {
             padding: const EdgeInsets.all(16),
             color: Colors.blue[50],
             child: StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance.collection('users').snapshots(),
+              stream:
+                  FirebaseFirestore.instance.collection('users').snapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) return const SizedBox();
-                
+
                 final allDocs = snapshot.data!.docs;
                 final filteredDocs = _filterUsers(allDocs);
-                
-                final present = filteredDocs.where((doc) {
-                  final data = doc.data() as Map<String, dynamic>;
-                  return data['status'] == 'present';
-                }).length;
-                
-                final onPermission = filteredDocs.where((doc) {
-                  final data = doc.data() as Map<String, dynamic>;
-                  return data['status'] == 'permission';
-                }).length;
-                
+
+                final present =
+                    filteredDocs.where((doc) {
+                      final data = doc.data() as Map<String, dynamic>;
+                      return data['status'] == 'present';
+                    }).length;
+
+                final onPermission =
+                    filteredDocs.where((doc) {
+                      final data = doc.data() as Map<String, dynamic>;
+                      return data['status'] == 'permission';
+                    }).length;
+
                 final absent = filteredDocs.length - present - onPermission;
-                
+
                 return Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     _buildStatusSummary("Présents", present, Colors.green),
-                    _buildStatusSummary("Autorisations", onPermission, Colors.orange),
+                    _buildStatusSummary(
+                      "Autorisations",
+                      onPermission,
+                      Colors.orange,
+                    ),
                     _buildStatusSummary("Absents", absent, Colors.red),
                   ],
                 );
               },
             ),
           ),
-          
+
           // Liste des réclamations de retard
           StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance
-                .collection('late_reports')
-                .where('date', isEqualTo: DateFormat('yyyy-MM-dd').format(DateTime.now()))
-                .snapshots(),
+            stream:
+                FirebaseFirestore.instance
+                    .collection('late_reports')
+                    .where(
+                      'date',
+                      isEqualTo: DateFormat(
+                        'yyyy-MM-dd',
+                      ).format(DateTime.now()),
+                    )
+                    .snapshots(),
             builder: (context, snapshot) {
               if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                 return const SizedBox();
               }
-              
+
               return Container(
                 margin: const EdgeInsets.all(8),
                 padding: const EdgeInsets.all(12),
@@ -952,7 +1003,8 @@ class _RealTimePresenceViewState extends State<RealTimePresenceView> {
                     ...snapshot.data!.docs.map((doc) {
                       final data = doc.data() as Map<String, dynamic>;
                       final time = (data['timestamp'] as Timestamp).toDate();
-                      final employeeName = data['employeeName'] ?? 'Employé inconnu';
+                      final employeeName =
+                          data['employeeName'] ?? 'Employé inconnu';
                       return Text(
                         "• $employeeName - Retard à ${DateFormat('HH:mm').format(time)}",
                         style: TextStyle(color: Colors.red[700]),
@@ -963,48 +1015,52 @@ class _RealTimePresenceViewState extends State<RealTimePresenceView> {
               );
             },
           ),
-          
+
           // Liste des employés
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance.collection('users').snapshots(),
+              stream:
+                  FirebaseFirestore.instance.collection('users').snapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return const Center(child: CircularProgressIndicator());
                 }
-                
+
                 final allDocs = snapshot.data!.docs;
                 final filteredDocs = _filterUsers(allDocs);
-                
+
                 if (filteredDocs.isEmpty) {
                   return const Center(
                     child: Text(
                       "Aucun employé trouvé",
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey,
-                      ),
+                      style: TextStyle(fontSize: 16, color: Colors.grey),
                     ),
                   );
                 }
-                
+
                 return ListView.builder(
                   itemCount: filteredDocs.length,
                   itemBuilder: (context, index) {
-                    final user = filteredDocs[index].data() as Map<String, dynamic>;
+                    final user =
+                        filteredDocs[index].data() as Map<String, dynamic>;
                     final status = user['status'] ?? 'absent';
                     final fullName = _getFullName(user);
                     final email = user['email'] ?? 'Email non défini';
-                    
+
                     return Card(
-                      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       child: ListTile(
                         leading: CircleAvatar(
                           backgroundColor: _getStatusColor(status),
                           child: Icon(
-                            status == 'present' ? Icons.check :
-                            status == 'permission' ? Icons.schedule :
-                            Icons.close,
+                            status == 'present'
+                                ? Icons.check
+                                : status == 'permission'
+                                ? Icons.schedule
+                                : Icons.close,
                             color: Colors.white,
                           ),
                         ),
@@ -1018,7 +1074,10 @@ class _RealTimePresenceViewState extends State<RealTimePresenceView> {
                             Text("Email: $email"),
                             const SizedBox(height: 4),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
                                 color: _getStatusColor(status).withOpacity(0.2),
                                 borderRadius: BorderRadius.circular(12),
@@ -1056,10 +1115,7 @@ class _RealTimePresenceViewState extends State<RealTimePresenceView> {
       children: [
         Container(
           padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
           child: Text(
             '$count',
             style: const TextStyle(
@@ -1082,7 +1138,5 @@ class _RealTimePresenceViewState extends State<RealTimePresenceView> {
     );
   }
   // Fonction pour déconnecter l'utilisateur
- // Fonction pour déconnecter l'utilisateur
-
+  // Fonction pour déconnecter l'utilisateur
 }
-  

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/controllers/auth_controller.dart';
+import 'package:myapp/services/firebase_service.dart'; // Import FirebaseService
 
 class RegisterView extends StatefulWidget {
   const RegisterView({super.key});
@@ -10,6 +11,8 @@ class RegisterView extends StatefulWidget {
 
 class _RegisterViewState extends State<RegisterView> {
   final AuthController _authController = AuthController();
+  final FirebaseService _firebaseService =
+      FirebaseService(); // Initialize FirebaseService
   final TextEditingController _nomController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -17,32 +20,32 @@ class _RegisterViewState extends State<RegisterView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF3F5044),
+      backgroundColor: const Color(0xFF3F5044),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Center(
         child: SingleChildScrollView(
-          padding: EdgeInsets.all(32.0),
+          padding: const EdgeInsets.all(32.0),
           child: Card(
             elevation: 8,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),
             child: Padding(
-              padding: EdgeInsets.all(32.0),
+              padding: const EdgeInsets.all(32.0),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.person_add,
                     size: 80,
                     color: Color(0xFF3F5044),
                   ),
-                  SizedBox(height: 24),
-                  Text(
+                  const SizedBox(height: 24),
+                  const Text(
                     'Inscription',
                     style: TextStyle(
                       fontSize: 24,
@@ -50,75 +53,78 @@ class _RegisterViewState extends State<RegisterView> {
                       color: Color(0xFF3F5044),
                     ),
                   ),
-                  SizedBox(height: 32),
+                  const SizedBox(height: 32),
                   TextField(
                     controller: _nomController,
                     decoration: InputDecoration(
-                      labelText: 'Nom complet',
-                      prefixIcon: Icon(Icons.person, color: Color(0xFF3F5044)),
+                      labelText: 'Nom complet (Nom Prénom)',
+                      prefixIcon: const Icon(Icons.person, color: Color(0xFF3F5044)),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Color(0xFF3F5044)),
+                        borderSide: const BorderSide(color: Color(0xFF3F5044)),
                       ),
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   TextField(
                     controller: _emailController,
                     decoration: InputDecoration(
                       labelText: 'Adresse email',
-                      prefixIcon: Icon(Icons.email, color: Color(0xFF3F5044)),
+                      prefixIcon: const Icon(Icons.email, color: Color(0xFF3F5044)),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Color(0xFF3F5044)),
+                        borderSide: const BorderSide(color: Color(0xFF3F5044)),
                       ),
                     ),
                     keyboardType: TextInputType.emailAddress,
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   TextField(
                     controller: _passwordController,
                     decoration: InputDecoration(
                       labelText: 'Mot de passe',
-                      prefixIcon: Icon(Icons.lock, color: Color(0xFF3F5044)),
+                      prefixIcon: const Icon(Icons.lock, color: Color(0xFF3F5044)),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Color(0xFF3F5044)),
+                        borderSide: const BorderSide(color: Color(0xFF3F5044)),
                       ),
                     ),
                     obscureText: true,
                   ),
-                  SizedBox(height: 24),
+                  const SizedBox(height: 24),
                   AnimatedBuilder(
                     animation: _authController,
                     builder: (context, child) {
                       return ElevatedButton(
                         onPressed: _authController.isLoading ? null : _signUp,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFF3F5044),
-                          minimumSize: Size(double.infinity, 50),
+                          backgroundColor: const Color(0xFF3F5044),
+                          minimumSize: const Size(double.infinity, 50),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        child: _authController.isLoading
-                            ? CircularProgressIndicator(color: Colors.white)
-                            : Text(
-                                'S\'inscrire',
-                                style: TextStyle(
-                                  fontSize: 16,
+                        child:
+                            _authController.isLoading
+                                ? const CircularProgressIndicator(
                                   color: Colors.white,
+                                )
+                                : const Text(
+                                  'S\'inscrire',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.white,
+                                  ),
                                 ),
-                              ),
                       );
                     },
                   ),
@@ -132,21 +138,50 @@ class _RegisterViewState extends State<RegisterView> {
   }
 
   Future<void> _signUp() async {
-    if (_nomController.text.isEmpty || 
-        _emailController.text.isEmpty || 
+    // Validate all fields
+    if (_nomController.text.isEmpty ||
+        _emailController.text.isEmpty ||
         _passwordController.text.isEmpty) {
       _showError('Veuillez remplir tous les champs');
       return;
     }
 
+    // Validate "Nom Prénom" format (must contain a space)
+    final name = _nomController.text.trim();
+    if (!name.contains(' ') ||
+        name.split(' ').length != 2 ||
+        name.split(' ').any((part) => part.isEmpty)) {
+      _showError(
+        'Le nom complet doit être au format "Nom Prénom" avec un espace entre les deux',
+      );
+      return;
+    }
+
+    // Validate email format
+    final email = _emailController.text.trim();
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    if (!emailRegex.hasMatch(email)) {
+      _showError('Veuillez entrer une adresse email valide');
+      return;
+    }
+
+    // Validate password length
     if (_passwordController.text.length < 6) {
       _showError('Le mot de passe doit contenir au moins 6 caractères');
       return;
     }
 
+    // Check if email already exists
+    final emailExists = await _firebaseService.emailExists(email);
+    if (emailExists) {
+      _showError('Cette adresse email est déjà utilisée');
+      return;
+    }
+
+    // Proceed with sign-up
     bool success = await _authController.signUp(
-      _nomController.text.trim(),
-      _emailController.text.trim(),
+      name,
+      email,
       _passwordController.text,
     );
 
@@ -160,19 +195,13 @@ class _RegisterViewState extends State<RegisterView> {
 
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.red,
-      ),
+      SnackBar(content: Text(message), backgroundColor: Colors.red),
     );
   }
 
   void _showSuccess(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.green,
-      ),
+      SnackBar(content: Text(message), backgroundColor: Colors.green),
     );
   }
 }
