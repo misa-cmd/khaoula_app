@@ -59,9 +59,11 @@ class _LeaveRequestViewState extends State<LeaveRequestView> {
       }
     } catch (e) {
       print('Erreur chargement statistiques: $e');
-      setState(() {
+      if(mounted){
+        setState(() {
         _isLoadingStats = false;
       });
+      }
     }
   }
 

@@ -21,7 +21,7 @@ class _AttendanceViewState extends State<AttendanceView> {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Provider.of<EmployeeController>(context);
+    final controller = Provider.of<EmployeeController>(context, listen: false);
     final timeFormat = DateFormat('HH:mm');
 
     return Scaffold(
