@@ -157,14 +157,17 @@ class _AuthViewState extends State<AuthView> {
                   borderRadius: BorderRadius.circular(16),
                 ),
                 title: Text(
-                  'Bonjour ${_authController.currentUser!.nom}',
+                  'Bonjour',
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF3F5044),
                   ),
                 ),
-
+                content: Text(
+                  'Nous sommes heureux de vous revoir ${_authController.currentUser!.nom} !',
+                  style: const TextStyle(fontSize: 16),
+                ),
                 actions: [
                   TextButton(
                     onPressed: () {
